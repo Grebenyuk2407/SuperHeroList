@@ -5,43 +5,42 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
-import retrofit2.Call
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import retrofit2.http.GET
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: SuperHeroAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val recyclerView:RecyclerView = findViewById(R.id.recycler_view)
+        recyclerView = findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = SuperHeroAdapter()
+        recyclerView.adapter = adapter
+
+
         val api = ApiClient.client.create(ApiInterface::class.java)
-        api.getSuperHeroes()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                if (it.isNotEmpty()){
-                    val items = it
-                    val myAdapter = RecyclerViewAdapter(items as MutableList<SuperHero>)
+        val superheroes:Single<ListSuperHero> = api.getSuperHeroes()
 
-                    recyclerView.adapter = myAdapter
-                }
-            },{
+        superheroes.subscribe(
+            { superHeroes ->
+                adapter.setData(superHeroes)
+            },
+            { error ->
+                Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
 
-                Toast.makeText(this,"Error ${it.message}", Toast.LENGTH_SHORT).show()
-
-            })
-        
 
     }
 }
+
 
 typealias ListSuperHero= List<SuperHero>
 
@@ -55,10 +54,10 @@ class ApiClient {
         val client: Retrofit = Retrofit.Builder()
             .client(OkHttpClient())
             .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .baseUrl("https://akabab.github.io")
             .build()
     }
-
 }
 
     interface ApiInterface{
