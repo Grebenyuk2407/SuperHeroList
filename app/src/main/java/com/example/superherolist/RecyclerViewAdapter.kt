@@ -1,22 +1,26 @@
 package com.example.superherolist
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
 
 class SuperHeroAdapter : RecyclerView.Adapter<SuperHeroAdapter.ViewHolder>() {
 
-    private var superHeroes: ListSuperHero = listOf()
+    private var superHeroList: List<SuperHeroItem> = emptyList()
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun setData(superHeroes: ListSuperHero) {
-        this.superHeroes = superHeroes
+    fun setData(superHeroList: List<SuperHeroItem>) {
+        this.superHeroList = superHeroList
         notifyDataSetChanged()
+    }
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
+        val slugTextView: TextView = itemView.findViewById(R.id.slugTextView)
+        val imageView: ImageView = itemView.findViewById(R.id.imageView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,22 +29,17 @@ class SuperHeroAdapter : RecyclerView.Adapter<SuperHeroAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val superHero = superHeroes[position]
+        val currentSuperHero = superHeroList[position]
 
+        holder.nameTextView.text = "Name: ${currentSuperHero.name}"
+        holder.slugTextView.text = "Slug: ${currentSuperHero.slug}"
 
-        Picasso.get().load(superHero.images.xs).into(holder.imageView)
-
-        holder.nameTextView.text = superHero.name
-        holder.slugTextView.text = superHero.slug
+        Glide.with(holder.itemView.context)
+            .load(currentSuperHero.images.sm)
+            .into(holder.imageView)
     }
 
     override fun getItemCount(): Int {
-        return superHeroes.size
-    }
-
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.imageView)
-        val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
-        val slugTextView: TextView = itemView.findViewById(R.id.slugTextView)
+        return superHeroList.size
     }
 }
