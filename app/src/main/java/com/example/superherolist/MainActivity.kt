@@ -1,5 +1,6 @@
 package com.example.superherolist
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -17,9 +18,12 @@ import retrofit2.http.GET
 
 class MainActivity : AppCompatActivity() {
 
+    @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Log.d("MainActivity", "Activity created successfully")
 
         val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
         val myAdapter = SuperHeroAdapter()
@@ -31,8 +35,8 @@ class MainActivity : AppCompatActivity() {
         val superheroes: Single<SuperHero> = api.getSuperHeroes()
 
         superheroes
-            .subscribeOn(Schedulers.io()) // выполнение запроса в фоновом потоке
-            .observeOn(AndroidSchedulers.mainThread()) // обновление UI в основном потоке
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { superHeroes ->
                     myAdapter.setData(superHeroes)

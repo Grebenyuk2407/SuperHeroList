@@ -1,10 +1,13 @@
 package com.example.superherolist
 
+import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
@@ -12,6 +15,7 @@ class SuperHeroAdapter : RecyclerView.Adapter<SuperHeroAdapter.ViewHolder>() {
 
     private var superHeroList: List<SuperHeroItem> = emptyList()
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(superHeroList: List<SuperHeroItem>) {
         this.superHeroList = superHeroList
         notifyDataSetChanged()
@@ -28,6 +32,7 @@ class SuperHeroAdapter : RecyclerView.Adapter<SuperHeroAdapter.ViewHolder>() {
         return ViewHolder(view)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentSuperHero = superHeroList[position]
 
@@ -37,6 +42,18 @@ class SuperHeroAdapter : RecyclerView.Adapter<SuperHeroAdapter.ViewHolder>() {
         Glide.with(holder.itemView.context)
             .load(currentSuperHero.images.sm)
             .into(holder.imageView)
+
+        holder.itemView.setOnClickListener {
+            val fragmentManager = (holder.itemView.context as AppCompatActivity).supportFragmentManager
+            val detailFragment = DetailFragment()
+            detailFragment.setSuperHero(currentSuperHero)
+
+            fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, detailFragment)
+                .commit()
+
+            Log.d("SuperHeroAdapter", "Item clicked: $currentSuperHero")
+        }
     }
 
     override fun getItemCount(): Int {
