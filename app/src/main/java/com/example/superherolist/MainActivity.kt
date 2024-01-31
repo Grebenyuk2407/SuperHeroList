@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Log.d("MainActivity", "Activity created successfully")
+
 
         val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
         val myAdapter = SuperHeroAdapter()

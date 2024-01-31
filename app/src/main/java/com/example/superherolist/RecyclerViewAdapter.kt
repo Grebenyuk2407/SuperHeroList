@@ -50,9 +50,11 @@ class SuperHeroAdapter : RecyclerView.Adapter<SuperHeroAdapter.ViewHolder>() {
 
             fragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, detailFragment)
+                .addToBackStack(null)
                 .commit()
 
-            Log.d("SuperHeroAdapter", "Item clicked: $currentSuperHero")
+
+
         }
     }
 
