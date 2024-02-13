@@ -1,7 +1,6 @@
 package com.example.superherolist
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,7 +35,7 @@ class SuperHeroAdapter : RecyclerView.Adapter<SuperHeroAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentSuperHero = superHeroList[position]
 
-        holder.nameTextView.text = "Name: ${currentSuperHero.name}"
+        holder.nameTextView.text = currentSuperHero.name
         holder.slugTextView.text = "Slug: ${currentSuperHero.slug}"
 
         Glide.with(holder.itemView.context)
