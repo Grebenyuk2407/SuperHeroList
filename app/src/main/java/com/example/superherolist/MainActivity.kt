@@ -5,14 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
@@ -32,20 +32,19 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = myAdapter
 
         val api = ApiClient.client.create(ApiInterface::class.java)
-        val superheroes: Single<SuperHero> = api.getSuperHeroes()
 
-        superheroes
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { superHeroes ->
-                    myAdapter.setData(superHeroes)
-                },
-                { error ->
-                    Log.e("MainActivity", "Error: ${error.message}", error)
-                    Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
+        lifecycleScope.launch {
+            try {
+                val superHeroes = withContext(Dispatchers.IO){
+                    api.getSuperHeroes()
                 }
-            )
+                myAdapter.setData(superHeroes)
+
+            }catch (error:Throwable){
+                Log.e("MainActivity", "Error: ${error.message}", error)
+                Toast.makeText(this@MainActivity, "Error: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }
 
@@ -54,7 +53,6 @@ class ApiClient {
         val client: Retrofit = Retrofit.Builder()
             .client(OkHttpClient())
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .baseUrl("https://akabab.github.io")
             .build()
     }
@@ -62,5 +60,5 @@ class ApiClient {
 
 interface ApiInterface {
     @GET("/superhero-api/api/all.json")
-    fun getSuperHeroes(): Single<SuperHero>
+    suspend fun getSuperHeroes(): SuperHero
 }
